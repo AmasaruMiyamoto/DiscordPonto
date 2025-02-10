@@ -3,8 +3,12 @@ import asyncio
 import discord
 from discord.ext import commands
 import logging
+from dotenv import load_dotenv
 from bot.utils.logging_config import setup_logging
 from bot.utils.config import load_config
+
+# Load environment variables from .env file
+load_dotenv()
 
 # Setup logging
 setup_logging()
@@ -15,7 +19,6 @@ config = load_config()
 
 # Initialize bot with all intents
 intents = discord.Intents.default()
-intents.message_content = True
 intents.voice_states = True
 intents.members = True
 intents.presences = True
@@ -32,6 +35,24 @@ async def load_extensions():
 async def on_ready():
     """Called when bot is ready"""
     logger.info(f'Logged in as {bot.user.name}')
+
+    # Generate and log invite link
+    permissions = discord.Permissions(
+        send_messages=True,
+        manage_messages=True,
+        read_message_history=True,
+        connect=True
+    )
+    invite_link = discord.utils.oauth_url(
+        bot.user.id,
+        permissions=permissions
+    )
+    logger.info(f'Invite Link: {invite_link}')
+
+    # Log servers the bot is in
+    for guild in bot.guilds:
+        logger.info(f'Connected to server: {guild.name} (ID: {guild.id})')
+
     try:
         synced = await bot.tree.sync()
         logger.info(f"Synced {len(synced)} command(s)")

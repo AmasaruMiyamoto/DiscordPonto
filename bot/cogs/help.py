@@ -9,6 +9,34 @@ class HelpCog(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
+    @app_commands.command(name="listservers", description="Lista os servidores onde o bot está presente")
+    @app_commands.default_permissions(administrator=True)
+    async def list_servers(self, interaction: discord.Interaction):
+        """Lista todos os servidores onde o bot está presente"""
+        try:
+            server_list = []
+            for guild in self.bot.guilds:
+                server_list.append(f"• {guild.name} (ID: {guild.id})")
+
+            if server_list:
+                servers_text = "\n".join(server_list)
+                await interaction.response.send_message(
+                    f"🤖 Estou presente nos seguintes servidores:\n{servers_text}",
+                    ephemeral=True
+                )
+            else:
+                await interaction.response.send_message(
+                    "❌ Não estou em nenhum servidor no momento!",
+                    ephemeral=True
+                )
+
+        except Exception as e:
+            logger.error(f"Erro ao listar servidores: {e}")
+            await interaction.response.send_message(
+                "Desculpe, encontrei um erro ao listar os servidores.",
+                ephemeral=True
+            )
+
     @app_commands.command(name="ajuda", description="Mostra todos os comandos disponíveis e suas funções")
     async def help(self, interaction: discord.Interaction):
         """Mostra lista de comandos e suas funções"""
@@ -17,6 +45,24 @@ class HelpCog(commands.Cog):
                 title="📚 Ajuda - Lista de Comandos",
                 description="Aqui estão todos os comandos disponíveis:",
                 color=discord.Color.blue()
+            )
+
+            # Gerar link de convite
+            permissions = discord.Permissions(
+                send_messages=True,
+                manage_messages=True,
+                read_message_history=True,
+                connect=True
+            )
+            invite_link = discord.utils.oauth_url(
+                self.bot.user.id,
+                permissions=permissions
+            )
+
+            help_embed.add_field(
+                name="🔗 Link de Convite",
+                value=f"[Clique aqui para adicionar o bot ao seu servidor]({invite_link})",
+                inline=False
             )
 
             help_embed.add_field(
@@ -43,6 +89,14 @@ class HelpCog(commands.Cog):
                 value=(
                     "`/ajuda` - Mostra esta mensagem de ajuda\n"
                     "`/ensinar` - Tutorial detalhado de como usar o bot"
+                ),
+                inline=False
+            )
+
+            help_embed.add_field(
+                name="⚙️ Administração",
+                value=(
+                    "`/listservers` - Lista os servidores onde o bot está presente"
                 ),
                 inline=False
             )
