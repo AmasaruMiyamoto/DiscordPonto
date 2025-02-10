@@ -22,6 +22,7 @@ intents = discord.Intents.default()
 intents.voice_states = True
 intents.members = True
 intents.presences = True
+intents.message_content = True  # Adicionando a permissão message_content
 
 bot = commands.Bot(command_prefix='/', intents=intents)
 
@@ -29,7 +30,7 @@ async def load_extensions():
     """Load all cogs"""
     await bot.load_extension('bot.cogs.chat')
     await bot.load_extension('bot.cogs.attendance')
-    await bot.load_extension('bot.cogs.help')  # Add new help cog
+    await bot.load_extension('bot.cogs.help')
 
 @bot.event
 async def on_ready():
