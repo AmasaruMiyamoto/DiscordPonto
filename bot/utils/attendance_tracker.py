@@ -16,21 +16,27 @@ class AttendanceTracker:
     def __init__(self):
         self.active_sessions: Dict[int, AttendanceRecord] = {}
         self.session_history: Dict[int, list[AttendanceRecord]] = {}
+        logger.info("AttendanceTracker inicializado")
 
     def register_entry(self, user_id: int, channel_id: int, timestamp: datetime):
         """Registrar entrada no canal de voz"""
+        logger.info(f"Tentando registrar entrada - Usuário: {user_id}, Canal: {channel_id}")
+
         if user_id in self.active_sessions:
-            logger.warning(f"Usuário {user_id} já possui uma sessão ativa")
+            logger.warning(f"Usuário {user_id} já possui uma sessão ativa no canal {self.active_sessions[user_id].channel_id}")
             return
 
         record = AttendanceRecord(user_id, channel_id, timestamp)
         self.active_sessions[user_id] = record
+        logger.info(f"Entrada registrada com sucesso para usuário {user_id}")
 
         if user_id not in self.session_history:
             self.session_history[user_id] = []
 
     def register_exit(self, user_id: int, timestamp: datetime) -> Optional[timedelta]:
         """Registrar saída do canal de voz"""
+        logger.info(f"Tentando registrar saída - Usuário: {user_id}")
+
         if user_id not in self.active_sessions:
             logger.warning(f"Nenhuma sessão ativa encontrada para o usuário {user_id}")
             return None
@@ -38,6 +44,8 @@ class AttendanceTracker:
         record = self.active_sessions[user_id]
         record.exit_time = timestamp
         record.duration = timestamp - record.entry_time
+
+        logger.info(f"Saída registrada - Usuário: {user_id}, Duração: {record.duration}")
 
         # Move to history
         self.session_history[user_id].append(record)
@@ -47,7 +55,10 @@ class AttendanceTracker:
 
     def generate_report(self, user_id: int) -> str:
         """Gerar relatório de presença"""
+        logger.info(f"Gerando relatório para usuário {user_id}")
+
         if user_id not in self.session_history:
+            logger.info(f"Nenhum registro encontrado para usuário {user_id}")
             return "Nenhum registro de presença encontrado."
 
         records = self.session_history[user_id]
@@ -71,4 +82,5 @@ class AttendanceTracker:
                 report += f"Duração: {str(record.duration)}\n"
             report += "---\n"
 
+        logger.info(f"Relatório gerado com sucesso para usuário {user_id}")
         return report

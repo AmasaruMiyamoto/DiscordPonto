@@ -26,11 +26,7 @@ bot.log
 
 # Environment variables and configuration
 .env
-.replit
-replit.nix
-pyproject.toml
-poetry.lock
-*.toml
+config.yml
 
 # IDE
 .idea/
@@ -41,3 +37,11 @@ poetry.lock
 # OS
 .DS_Store
 Thumbs.db
+
+# Replit specific
+.replit
+replit.nix
+poetry.lock
+.breakpoints
+.upm/
+.config/
